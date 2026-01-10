@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import os from 'os';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,6 +45,47 @@ app.post('/api/proxy', async (req, res) => {
       message: error.message 
     });
   }
+});
+
+// System Metrics Endpoint
+app.get('/api/metrics', (req, res) => {
+  const cpus = os.cpus();
+  const totalMem = os.totalmem();
+  const freeMem = os.freemem();
+  const usedMem = totalMem - freeMem;
+  
+  // Calculate CPU usage
+  let totalIdle = 0;
+  let totalTick = 0;
+  
+  cpus.forEach(cpu => {
+    for (const type in cpu.times) {
+      totalTick += cpu.times[type];
+    }
+    totalIdle += cpu.times.idle;
+  });
+  
+  const idle = totalIdle / cpus.length;
+  const total = totalTick / cpus.length;
+  const usage = 100 - (100 * idle / total);
+  
+  res.json({
+    cpu: {
+      usage: Math.round(usage * 10) / 10,
+      cores: cpus.length,
+      model: cpus[0].model
+    },
+    memory: {
+      total: totalMem,
+      used: usedMem,
+      free: freeMem,
+      usagePercent: Math.round((usedMem / totalMem) * 100 * 10) / 10
+    },
+    uptime: os.uptime(),
+    platform: os.platform(),
+    hostname: os.hostname(),
+    loadavg: os.loadavg()
+  });
 });
 
 // Health Check
