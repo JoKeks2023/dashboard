@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Backend für WebSocket-Logs und Runtime-Config
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: homelab-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    networks:
+      - homelab
+    restart: unless-stopped
+
+  # Frontend Dashboard
+  homelab-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: homelab-dashboard
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - homelab
+    restart: unless-stopped
+
+networks:
+  homelab:
+    driver: bridge
