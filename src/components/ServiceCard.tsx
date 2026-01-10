@@ -3,6 +3,8 @@ import { Service } from '../services';
 import { useServiceStatus } from '../hooks/useServiceStatus';
 import { usePortainerData } from '../hooks/usePortainerData';
 import { useHomeAssistantData } from '../hooks/useHomeAssistantData';
+import { useCockpitData } from '../hooks/useCockpitData';
+import { useWebminData } from '../hooks/useWebminData';
 import LogViewer from './LogViewer';
 
 /**
@@ -20,6 +22,14 @@ export default function ServiceCard({ service }: { service: Service }) {
   
   const haData = service.apiType === 'homeassistant' 
     ? useHomeAssistantData(service.url, service.apiToken) 
+    : { data: null, loading: false, error: null };
+
+  const cockpitData = service.apiType === 'cockpit'
+    ? useCockpitData(service.url)
+    : { data: null, loading: false, error: null };
+
+  const webminData = service.apiType === 'webmin' || service.apiType === 'usermin'
+    ? useWebminData(service.url)
     : { data: null, loading: false, error: null };
 
   const openService = () => {
@@ -83,6 +93,52 @@ export default function ServiceCard({ service }: { service: Service }) {
                 {domain}: {count}
               </span>
             ))}
+          </div>
+        </div>
+      )}
+
+      {cockpitData.data && (
+        <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <div className="text-slate-400">CPU Cores</div>
+              <div className="font-semibold">{cockpitData.data.cpuCount}</div>
+            </div>
+            <div>
+              <div className="text-slate-400">Memory</div>
+              <div className="font-semibold">{(cockpitData.data.memoryTotal / 1024 / 1024 / 1024).toFixed(1)} GB</div>
+            </div>
+            <div>
+              <div className="text-slate-400">Hostname</div>
+              <div className="font-semibold text-xs">{cockpitData.data.hostname}</div>
+            </div>
+            <div>
+              <div className="text-slate-400">Load Avg</div>
+              <div className="font-semibold text-xs">{cockpitData.data.loadAverage[0].toFixed(2)}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {webminData.data && (
+        <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <div className="text-slate-400">Uptime</div>
+              <div className="font-semibold">{Math.floor(webminData.data.uptime / 86400)}d {Math.floor((webminData.data.uptime % 86400) / 3600)}h</div>
+            </div>
+            <div>
+              <div className="text-slate-400">Processes</div>
+              <div className="font-semibold">{webminData.data.processes}</div>
+            </div>
+            <div>
+              <div className="text-slate-400">Load Avg</div>
+              <div className="font-semibold">{webminData.data.loadAverage[0].toFixed(2)}</div>
+            </div>
+            <div>
+              <div className="text-slate-400">Active Users</div>
+              <div className="font-semibold">{webminData.data.users}</div>
+            </div>
           </div>
         </div>
       )}

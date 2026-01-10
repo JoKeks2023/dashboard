@@ -5,7 +5,7 @@ export type Service = {
   icon?: string;
   iframe?: boolean;
   wsUrl?: string;
-  apiType?: 'portainer' | 'homeassistant' | 'generic';
+  apiType?: 'portainer' | 'homeassistant' | 'cockpit' | 'webmin' | 'usermin' | 'generic';
   apiToken?: string;
 };
 
@@ -25,21 +25,21 @@ export const services: Service[] = [
     url: env.VITE_WEBMIN_URL || 'http://localhost:10000',
     description: 'Linux System Administration',
     icon: '🖥️',
-    apiType: 'generic'
+    apiType: 'webmin'
   },
   {
     name: 'Usermin',
     url: env.VITE_USERMIN_URL || 'http://localhost:20000',
     description: 'User Account Management',
     icon: '👤',
-    apiType: 'generic'
+    apiType: 'usermin'
   },
   {
     name: 'Cockpit',
     url: env.VITE_COCKPIT_URL || 'http://localhost:9090',
     description: 'Server Monitoring',
     icon: '📊',
-    apiType: 'generic'
+    apiType: 'cockpit'
   },
   {
     name: 'Home Assistant',
