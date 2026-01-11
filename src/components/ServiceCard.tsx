@@ -97,6 +97,12 @@ export default function ServiceCard({ service }: { service: Service }) {
         </div>
       )}
 
+      {haData.error && !haData.loading && (
+        <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+          <div className="text-xs text-red-400">⚠️ API nicht erreichbar</div>
+        </div>
+      )}
+
       {cockpitData.data && (
         <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
           <div className="grid grid-cols-2 gap-2 text-sm">
@@ -120,6 +126,12 @@ export default function ServiceCard({ service }: { service: Service }) {
         </div>
       )}
 
+      {cockpitData.error && !cockpitData.loading && (
+        <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+          <div className="text-xs text-red-400">⚠️ API nicht erreichbar</div>
+        </div>
+      )}
+
       {webminData.data && (
         <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
           <div className="grid grid-cols-2 gap-2 text-sm">
@@ -140,6 +152,12 @@ export default function ServiceCard({ service }: { service: Service }) {
               <div className="font-semibold">{webminData.data.users}</div>
             </div>
           </div>
+        </div>
+      )}
+
+      {webminData.error && !webminData.loading && (
+        <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+          <div className="text-xs text-red-400">⚠️ API nicht erreichbar</div>
         </div>
       )}
 

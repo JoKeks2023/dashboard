@@ -12,7 +12,7 @@ export type CockpitSystemInfo = {
 
 /**
  * useCockpitData - Fetcht System-Info von Cockpit
- * Nutzt entweder direkte API oder Backend-Proxy
+ * Cockpit API: https://cockpit-project.org/guide/latest/api-base1.html
  */
 export function useCockpitData(baseUrl: string) {
   const [data, setData] = useState<CockpitSystemInfo | null>(null);
@@ -22,28 +22,35 @@ export function useCockpitData(baseUrl: string) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Cockpit hat keine öffentliche REST API, nutze Backend Metrics als Fallback
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-        const response = await fetch(`${backendUrl}/api/metrics`);
+        // Cockpit API endpoint für System-Info
+        // Format: http://server:9090/cockpit/system/info
+        const response = await fetch(`${baseUrl}/cockpit/system/info`, {
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
 
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(`HTTP ${response.status} - Cockpit API not accessible`);
         }
 
-        const metrics = await response.json();
+        const info = await response.json();
         
         setData({
-          hostname: metrics.hostname,
-          os: metrics.platform,
-          kernel: '-',
-          cpuCount: metrics.cpu.cores,
-          memoryTotal: metrics.memory.total,
-          memoryUsed: metrics.memory.used,
-          loadAverage: metrics.loadavg
+          hostname: info.hostname || 'Unknown',
+          os: info.operating_system || 'Unknown',
+          kernel: info.kernel || 'Unknown',
+          cpuCount: info.cpu_count || 0,
+          memoryTotal: info.memory_total || 0,
+          memoryUsed: info.memory_used || 0,
+          loadAverage: info.load_average || [0, 0, 0]
         });
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Fehler beim Laden');
+        const errorMsg = err instanceof Error ? err.message : 'Fehler beim Laden';
+        setError(errorMsg);
+        console.error('Cockpit API error:', errorMsg);
         setData(null);
       } finally {
         setLoading(false);

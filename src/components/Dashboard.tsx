@@ -16,32 +16,23 @@ export default function Dashboard() {
   const containerCount = portainerData.data?.total ?? 0;
   const metrics = useSystemMetrics(containerCount);
 
+  // Nur Container-Chart zeigen, da CPU/Memory von Remote-Services kommen müssen
+  const hasContainerData = metrics.containers.length > 0;
+
   return (
     <div className="space-y-6">
-      {/* Metrics Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <MetricChart
-          data={metrics.cpu}
-          title="CPU Auslastung"
-          color="#3b82f6"
-          unit="%"
-          max={100}
-        />
-        <MetricChart
-          data={metrics.memory}
-          title="RAM Auslastung"
-          color="#10b981"
-          unit="%"
-          max={100}
-        />
-        <MetricChart
-          data={metrics.containers}
-          title="Container"
-          color="#f59e0b"
-          unit=""
-          max={Math.max(containerCount + 5, 10)}
-        />
-      </div>
+      {/* Metrics Charts - Nur Container-Count (Rest kommt von Remote-Services) */}
+      {hasContainerData && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <MetricChart
+            data={metrics.containers}
+            title="Container"
+            color="#f59e0b"
+            unit=""
+            max={Math.max(containerCount + 5, 10)}
+          />
+        </div>
+      )}
 
       {/* Service Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
-import os from 'os';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,46 +46,9 @@ app.post('/api/proxy', async (req, res) => {
   }
 });
 
-// System Metrics Endpoint
-app.get('/api/metrics', (req, res) => {
-  const cpus = os.cpus();
-  const totalMem = os.totalmem();
-  const freeMem = os.freemem();
-  const usedMem = totalMem - freeMem;
-  
-  // Calculate CPU usage
-  let totalIdle = 0;
-  let totalTick = 0;
-  
-  cpus.forEach(cpu => {
-    for (const type in cpu.times) {
-      totalTick += cpu.times[type];
-    }
-    totalIdle += cpu.times.idle;
-  });
-  
-  const idle = totalIdle / cpus.length;
-  const total = totalTick / cpus.length;
-  const usage = 100 - (100 * idle / total);
-  
-  res.json({
-    cpu: {
-      usage: Math.round(usage * 10) / 10,
-      cores: cpus.length,
-      model: cpus[0].model
-    },
-    memory: {
-      total: totalMem,
-      used: usedMem,
-      free: freeMem,
-      usagePercent: Math.round((usedMem / totalMem) * 100 * 10) / 10
-    },
-    uptime: os.uptime(),
-    platform: os.platform(),
-    hostname: os.hostname(),
-    loadavg: os.loadavg()
-  });
-});
+// System Metrics Endpoint - REMOVED
+// Metrics should come directly from remote services (Cockpit, Portainer, etc.)
+// This backend is only for CORS proxy and WebSocket if needed
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -108,30 +70,24 @@ wss.on('connection', (ws) => {
       if (data.action === 'subscribe') {
         console.log(`Client subscribed to service: ${data.service}`);
         
-        // Demo: Sende Mock-Logs alle 3 Sekunden
-        const interval = setInterval(() => {
-          if (ws.readyState === ws.OPEN) {
-            const mockLog = {
-              type: 'log',
-              service: data.service,
-              timestamp: new Date().toISOString(),
-              message: `[${data.service}] Sample log message at ${new Date().toLocaleTimeString()}`,
-              level: ['info', 'warn', 'error'][Math.floor(Math.random() * 3)]
-            };
-            ws.send(JSON.stringify(mockLog));
-          } else {
-            clearInterval(interval);
-          }
-        }, 3000);
+        // WebSocket connection established
+        // Real logs would come from Docker API, Portainer, or systemd
+        // For now, just keep connection open for future implementation
         
-        ws.on('close', () => {
-          clearInterval(interval);
-          console.log('Client disconnected');
-        });
+        ws.send(JSON.stringify({
+          type: 'status',
+          service: data.service,
+          message: 'Connected - waiting for real log stream',
+          timestamp: new Date().toISOString()
+        }));
       }
     } catch (err) {
       console.error('Failed to parse WebSocket message:', err);
     }
+  });
+  
+  ws.on('close', () => {
+    console.log('Client disconnected');
   });
 });
 
