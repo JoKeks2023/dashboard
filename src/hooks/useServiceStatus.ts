@@ -11,7 +11,7 @@ export function useServiceStatus(url: string) {
   useEffect(() => {
     const check = async () => {
       try {
-        const response = await fetch(url, {
+        await fetch(url, {
           method: 'HEAD',
           mode: 'no-cors',
           cache: 'no-cache'
