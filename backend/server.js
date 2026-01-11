@@ -2,27 +2,50 @@ import express from 'express';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const CONFIG_FILE = path.join(__dirname, 'config.json');
 
 app.use(cors());
 app.use(express.json());
 
-// Runtime Config Storage (in-memory, könnte auch Redis/DB sein)
-let runtimeConfig = {
-  services: [],
-  tokens: {}
-};
+// Load Config from File
+async function loadConfig() {
+  try {
+    const data = await fs.readFile(CONFIG_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    return { setupComplete: false, services: [] };
+  }
+}
+
+// Save Config to File
+async function saveConfig(config) {
+  await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
+}
 
 // Config Endpoints
-app.get('/api/config', (req, res) => {
-  res.json(runtimeConfig);
+app.get('/api/config', async (req, res) => {
+  const config = await loadConfig();
+  res.json(config);
 });
 
-app.post('/api/config', (req, res) => {
-  runtimeConfig = { ...runtimeConfig, ...req.body };
-  res.json({ success: true, config: runtimeConfig });
+app.post('/api/config', async (req, res) => {
+  try {
+    const config = await loadConfig();
+    const newConfig = { ...config, ...req.body, setupComplete: true };
+    await saveConfig(newConfig);
+    res.json({ success: true, config: newConfig });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // Proxy für API-Calls (vermeidet CORS-Probleme)

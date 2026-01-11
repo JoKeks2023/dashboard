@@ -19,6 +19,9 @@ out/
 .env.local
 .env.*.local
 
+# Backend config (contains API tokens)
+backend/config.json
+
 # IDE & Editor
 .vscode/
 .idea/
