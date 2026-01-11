@@ -289,7 +289,23 @@ Contributions sind willkommen! Bitte:
 
 ## 🚀 Releases erstellen
 
-Für Maintainer:
+### Für User
+
+Installiere mit:
+```bash
+curl -sSL https://raw.githubusercontent.com/JoKeks2023/dashboard/main/install.sh | bash
+```
+
+Update mit:
+```bash
+./update.sh
+```
+
+Siehe [DEPLOYMENT.md](DEPLOYMENT.md) für Details.
+
+### Für Maintainer
+
+**Wichtig:** Vor dem ersten Release siehe [GITHUB_SETUP.md](GITHUB_SETUP.md) für GitHub Actions Setup!
 
 ```bash
 npm run release
@@ -302,7 +318,14 @@ Folge den Prompts für Version und Release-Typ. Das Script:
 4. Images werden zu ghcr.io gepusht
 5. GitHub Release wird erstellt
 
-Siehe [DEPLOYMENT.md](DEPLOYMENT.md) für Details.
+**Erste Schritte:**
+1. Lies [GITHUB_SETUP.md](GITHUB_SETUP.md)
+2. Setze GitHub Actions Permissions
+3. Erstelle ersten Release: `npm run release`
+4. Pushe Tag: `git push origin v0.1.0`
+5. Beobachte GitHub Actions
+
+Siehe [DEPLOYMENT.md](DEPLOYMENT.md) und [GITHUB_SETUP.md](GITHUB_SETUP.md) für Details.
 
 ## 📄 Lizenz
 
