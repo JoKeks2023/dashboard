@@ -12,7 +12,6 @@ import LogViewer from './LogViewer';
  */
 export default function ServiceCard({ service }: { service: Service }) {
   const { online, lastChecked } = useServiceStatus(service.url);
-  const [actionsOpen, setActionsOpen] = useState<boolean>(false);
   const [showLogs, setShowLogs] = useState<boolean>(false);
 
   // API Data Hooks
@@ -170,41 +169,13 @@ export default function ServiceCard({ service }: { service: Service }) {
           Öffnen
         </button>
         
-        <div className="relative">
-          <button
-            onClick={() => setActionsOpen(!actionsOpen)}
-            className="bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg transition-colors"
-            title="Weitere Aktionen"
-          >
-            ⚙️
-          </button>
-          
-          {actionsOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-slate-700 rounded-lg shadow-xl z-10 animate-fade-in">
-              <button
-                onClick={() => {
-                  setShowLogs(true);
-                  setActionsOpen(false);
-                }}
-                className="w-full text-left px-4 py-2 hover:bg-slate-600 rounded-t-lg transition-colors"
-              >
-                📋 Logs anzeigen
-              </button>
-              <button
-                className="w-full text-left px-4 py-2 hover:bg-slate-600 transition-colors"
-                onClick={() => setActionsOpen(false)}
-              >
-                🔄 Restart (Demo)
-              </button>
-              <button
-                className="w-full text-left px-4 py-2 hover:bg-slate-600 rounded-b-lg transition-colors"
-                onClick={() => setActionsOpen(false)}
-              >
-                🖥️ Terminal (Demo)
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => setShowLogs(true)}
+          className="bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg transition-colors"
+          title="Logs anzeigen"
+        >
+          📋
+        </button>
       </div>
 
       {/* Last Check */}
