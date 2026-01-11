@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ghcr.io/jokeks2023/dashboard-backend:latest
+    container_name: homelab-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    networks:
+      - homelab
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dashboard:
+    image: ghcr.io/jokeks2023/dashboard:latest
+    container_name: homelab-dashboard
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - homelab
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  homelab:
+    driver: bridge

@@ -106,7 +106,25 @@ npm run dev  # oder npm run build
 
 ## 🐳 Docker Deployment
 
-### Mit Docker Compose (empfohlen)
+### Quick Deploy (Production)
+
+Ein-Zeilen-Installation:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/JoKeks2023/dashboard/main/install.sh | bash
+```
+
+Das Dashboard läuft dann auf: **http://localhost:3000**
+
+Siehe [DEPLOYMENT.md](DEPLOYMENT.md) für Details.
+
+### Updates
+
+```bash
+./update.sh
+```
+
+### Mit Docker Compose (Development)
 
 ```bash
 docker-compose up -d
@@ -265,8 +283,26 @@ Contributions sind willkommen! Bitte:
 - ✅ Support für Portainer, Home Assistant, Cockpit, Webmin, Usermin
 - ✅ Live Status-Checks und Container-Metriken
 - ✅ Dark Mode mit Toggle
-- ✅ Docker-Support
+- ✅ Docker-Support mit automatischen Builds
 - ✅ Vollständig remote-fähig
+- ✅ GitHub Container Registry Integration
+
+## 🚀 Releases erstellen
+
+Für Maintainer:
+
+```bash
+npm run release
+```
+
+Folge den Prompts für Version und Release-Typ. Das Script:
+1. Updated package.json
+2. Erstellt Git Commit und Tag
+3. GitHub Actions baut automatisch Docker Images
+4. Images werden zu ghcr.io gepusht
+5. GitHub Release wird erstellt
+
+Siehe [DEPLOYMENT.md](DEPLOYMENT.md) für Details.
 
 ## 📄 Lizenz
 
