@@ -8,13 +8,12 @@ import { useWebminData } from '../hooks/useWebminData';
 import LogViewer from './LogViewer';
 
 /**
- * ServiceCard - Einzelne Service-Karte mit Status-Check und API-Daten statt Iframes.
+ * ServiceCard - Cyberpunk ASCII-bordered service node card.
  */
 export default function ServiceCard({ service }: { service: Service }) {
   const { online, lastChecked } = useServiceStatus(service.url);
   const [showLogs, setShowLogs] = useState<boolean>(false);
 
-  // API Data Hooks
   const portainerData = service.apiType === 'portainer' 
     ? usePortainerData(service.url, service.apiToken) 
     : { data: null, loading: false, error: null };
@@ -35,61 +34,92 @@ export default function ServiceCard({ service }: { service: Service }) {
     window.open(service.url, '_blank', 'noopener,noreferrer');
   };
 
-  const statusColor = online ? 'bg-green-500' : 'bg-red-500';
+  const onlineColor = online ? 'var(--cyber-green)' : 'var(--cyber-red)';
+  const onlineGlow = online
+    ? '0 0 4px var(--cyber-green), 0 0 8px var(--cyber-green)'
+    : '0 0 4px var(--cyber-red)';
 
   return (
-    <div className="card p-4 transition-transform duration-200 hover:scale-[1.01]">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl">{service.icon || '📦'}</span>
-          <div>
-            <h3 className="font-semibold text-lg">{service.name}</h3>
-            {service.description && (
-              <p className="text-sm text-slate-400">{service.description}</p>
-            )}
-          </div>
+    <div
+      className="card p-3 animate-fade-in"
+      style={{ fontFamily: "'Share Tech Mono', monospace" }}
+    >
+      {/* ASCII Top border label */}
+      <div className="text-xs mb-2" style={{ color: 'var(--cyber-cyan)', textShadow: '0 0 4px var(--cyber-cyan)' }}>
+        ╔══[ NODE: {service.name.toUpperCase()} ]
+      </div>
+
+      {/* Header row */}
+      <div className="flex items-start justify-between mb-2">
+        <div>
+          <h3
+            className="font-bold text-base tracking-widest"
+            style={{ color: 'var(--cyber-cyan)', textShadow: '0 0 6px var(--cyber-cyan)' }}
+          >
+            {(service.icon ? service.icon + ' ' : '') + service.name.toUpperCase()}
+          </h3>
+          {service.description && (
+            <p className="text-xs mt-0.5" style={{ color: 'var(--cyber-dim)' }}>
+              &gt; {service.description}
+            </p>
+          )}
         </div>
-        
-        {/* Status Indicator */}
-        <div className="flex items-center gap-2" title={online ? 'Online' : 'Offline'}>
-          <span className={`status-dot ${statusColor} ${online ? 'animate-pulse-slow' : ''}`} />
-          <span className="text-xs text-slate-400">
-            {online ? 'Online' : 'Offline'}
+
+        {/* Status */}
+        <div className="flex items-center gap-1 text-xs">
+          <span
+            className={`status-dot ${online ? 'animate-pulse-slow' : ''}`}
+            style={{ backgroundColor: onlineColor, boxShadow: onlineGlow }}
+          />
+          <span style={{ color: onlineColor, textShadow: onlineGlow }}>
+            {online ? 'ONLINE' : 'OFFLINE'}
           </span>
         </div>
       </div>
 
-      {/* API Data Display */}
+      <hr className="ascii-divider" />
+
+      {/* Portainer Data */}
       {portainerData.data && (
-        <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
+        <div className="cyber-panel mb-2 text-xs">
+          <div className="mb-1" style={{ color: 'var(--cyber-magenta)' }}>&gt; DOCKER STATUS</div>
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div className="text-2xl font-bold text-green-400">{portainerData.data.running}</div>
-              <div className="text-xs text-slate-400">Running</div>
+              <div className="text-lg font-bold" style={{ color: 'var(--cyber-green)', textShadow: '0 0 6px var(--cyber-green)' }}>
+                {portainerData.data.running}
+              </div>
+              <div style={{ color: 'var(--cyber-dim)' }}>RUN</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-red-400">{portainerData.data.stopped}</div>
-              <div className="text-xs text-slate-400">Stopped</div>
+              <div className="text-lg font-bold" style={{ color: 'var(--cyber-red)', textShadow: '0 0 6px var(--cyber-red)' }}>
+                {portainerData.data.stopped}
+              </div>
+              <div style={{ color: 'var(--cyber-dim)' }}>STOP</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-blue-400">{portainerData.data.total}</div>
-              <div className="text-xs text-slate-400">Total</div>
+              <div className="text-lg font-bold" style={{ color: 'var(--cyber-cyan)', textShadow: '0 0 6px var(--cyber-cyan)' }}>
+                {portainerData.data.total}
+              </div>
+              <div style={{ color: 'var(--cyber-dim)' }}>TOTAL</div>
             </div>
           </div>
         </div>
       )}
 
+      {/* Home Assistant Data */}
       {haData.data && (
-        <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
+        <div className="cyber-panel mb-2 text-xs">
+          <div className="mb-1" style={{ color: 'var(--cyber-magenta)' }}>&gt; HA ENTITIES</div>
           <div className="text-center mb-2">
-            <div className="text-2xl font-bold text-blue-400">{haData.data.entities}</div>
-            <div className="text-xs text-slate-400">Entitäten</div>
+            <div className="text-2xl font-bold" style={{ color: 'var(--cyber-cyan)', textShadow: '0 0 6px var(--cyber-cyan)' }}>
+              {haData.data.entities}
+            </div>
+            <div style={{ color: 'var(--cyber-dim)' }}>ENTITIES</div>
           </div>
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-1 justify-center">
             {Object.entries(haData.data.domains).slice(0, 5).map(([domain, count]) => (
-              <span key={domain} className="text-xs bg-slate-600 px-2 py-1 rounded">
-                {domain}: {count}
+              <span key={domain} className="cyber-tag">
+                {domain}:{count as number}
               </span>
             ))}
           </div>
@@ -97,93 +127,105 @@ export default function ServiceCard({ service }: { service: Service }) {
       )}
 
       {haData.error && !haData.loading && (
-        <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-          <div className="text-xs text-red-400">⚠️ API nicht erreichbar</div>
+        <div className="cyber-panel mb-2 text-xs" style={{ borderColor: 'var(--cyber-red)', color: 'var(--cyber-red)' }}>
+          !! API UNREACHABLE !!
         </div>
       )}
 
+      {/* Cockpit Data */}
       {cockpitData.data && (
-        <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
-          <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="cyber-panel mb-2 text-xs">
+          <div className="mb-1" style={{ color: 'var(--cyber-magenta)' }}>&gt; HOST STATS</div>
+          <div className="grid grid-cols-2 gap-1">
             <div>
-              <div className="text-slate-400">CPU Cores</div>
-              <div className="font-semibold">{cockpitData.data.cpuCount}</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>CPU:</span>{' '}
+              <span style={{ color: 'var(--cyber-cyan)' }}>{cockpitData.data.cpuCount}x</span>
             </div>
             <div>
-              <div className="text-slate-400">Memory</div>
-              <div className="font-semibold">{(cockpitData.data.memoryTotal / 1024 / 1024 / 1024).toFixed(1)} GB</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>MEM:</span>{' '}
+              <span style={{ color: 'var(--cyber-cyan)' }}>{(cockpitData.data.memoryTotal / 1024 / 1024 / 1024).toFixed(1)}GB</span>
             </div>
             <div>
-              <div className="text-slate-400">Hostname</div>
-              <div className="font-semibold text-xs">{cockpitData.data.hostname}</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>HOST:</span>{' '}
+              <span style={{ color: 'var(--cyber-green)' }}>{cockpitData.data.hostname}</span>
             </div>
             <div>
-              <div className="text-slate-400">Load Avg</div>
-              <div className="font-semibold text-xs">{cockpitData.data.loadAverage[0].toFixed(2)}</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>LOAD:</span>{' '}
+              <span style={{ color: 'var(--cyber-yellow)' }}>{cockpitData.data.loadAverage[0].toFixed(2)}</span>
             </div>
           </div>
         </div>
       )}
 
       {cockpitData.error && !cockpitData.loading && (
-        <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-          <div className="text-xs text-red-400">⚠️ API nicht erreichbar</div>
+        <div className="cyber-panel mb-2 text-xs" style={{ borderColor: 'var(--cyber-red)', color: 'var(--cyber-red)' }}>
+          !! API UNREACHABLE !!
         </div>
       )}
 
+      {/* Webmin Data */}
       {webminData.data && (
-        <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
-          <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="cyber-panel mb-2 text-xs">
+          <div className="mb-1" style={{ color: 'var(--cyber-magenta)' }}>&gt; SYSTEM INFO</div>
+          <div className="grid grid-cols-2 gap-1">
             <div>
-              <div className="text-slate-400">Uptime</div>
-              <div className="font-semibold">{Math.floor(webminData.data.uptime / 86400)}d {Math.floor((webminData.data.uptime % 86400) / 3600)}h</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>UPTIME:</span>{' '}
+              <span style={{ color: 'var(--cyber-cyan)' }}>
+                {Math.floor(webminData.data.uptime / 86400)}D {Math.floor((webminData.data.uptime % 86400) / 3600)}H
+              </span>
             </div>
             <div>
-              <div className="text-slate-400">Processes</div>
-              <div className="font-semibold">{webminData.data.processes}</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>PROCS:</span>{' '}
+              <span style={{ color: 'var(--cyber-cyan)' }}>{webminData.data.processes}</span>
             </div>
             <div>
-              <div className="text-slate-400">Load Avg</div>
-              <div className="font-semibold">{webminData.data.loadAverage[0].toFixed(2)}</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>LOAD:</span>{' '}
+              <span style={{ color: 'var(--cyber-yellow)' }}>{webminData.data.loadAverage[0].toFixed(2)}</span>
             </div>
             <div>
-              <div className="text-slate-400">Active Users</div>
-              <div className="font-semibold">{webminData.data.users}</div>
+              <span style={{ color: 'var(--cyber-dim)' }}>USERS:</span>{' '}
+              <span style={{ color: 'var(--cyber-green)' }}>{webminData.data.users}</span>
             </div>
           </div>
         </div>
       )}
 
       {webminData.error && !webminData.loading && (
-        <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-          <div className="text-xs text-red-400">⚠️ API nicht erreichbar</div>
+        <div className="cyber-panel mb-2 text-xs" style={{ borderColor: 'var(--cyber-red)', color: 'var(--cyber-red)' }}>
+          !! API UNREACHABLE !!
         </div>
       )}
 
+      <hr className="ascii-divider" />
+
       {/* Actions */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 mt-2">
         <button
           onClick={openService}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+          className="btn-cyber flex-1 text-xs"
         >
-          Öffnen
+          &gt;&gt; OPEN
         </button>
-        
         <button
           onClick={() => setShowLogs(true)}
-          className="bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg transition-colors"
+          className="btn-cyber btn-cyber-magenta text-xs px-3"
           title="Logs anzeigen"
         >
-          📋
+          LOG
         </button>
       </div>
 
       {/* Last Check */}
       {lastChecked && (
-        <div className="mt-2 text-xs text-slate-500 text-center">
-          Letzter Check: {lastChecked.toLocaleTimeString()}
+        <div className="mt-2 text-xs text-center" style={{ color: 'var(--cyber-dim)' }}>
+          LAST PING: {lastChecked.toLocaleTimeString()}
         </div>
       )}
+
+      {/* ASCII bottom border - matches top ╔══[ NODE: {name} ] = name.length+13 chars, so bottom needs name.length+11 ═ chars */}
+      <div className="text-xs mt-2" style={{ color: 'var(--cyber-cyan)', textShadow: '0 0 4px var(--cyber-cyan)' }}>
+        ╚{'═'.repeat(Math.max(0, service.name.length + 11))}╝
+      </div>
 
       {/* Log Viewer Modal */}
       {showLogs && (

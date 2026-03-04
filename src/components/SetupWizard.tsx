@@ -134,120 +134,160 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     return true;
   };
 
+  const stepLabels = ['SELECT', 'CONFIG', 'CONFIRM'];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 scanlines"
+      style={{ backgroundColor: 'var(--cyber-bg)', fontFamily: "'Share Tech Mono', monospace" }}
+    >
+      <div
+        className="max-w-4xl w-full p-6"
+        style={{ backgroundColor: 'var(--cyber-bg2)', border: '1px solid var(--cyber-cyan)', boxShadow: '0 0 24px var(--cyber-cyan)' }}
+      >
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            🏠 Homelab Dashboard Setup
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Willkommen! Lass uns dein Dashboard einrichten.
+        <div className="text-center mb-6">
+          <pre className="text-xs leading-tight mb-2 hidden md:block" style={{ color: 'var(--cyber-cyan)', textShadow: '0 0 6px var(--cyber-cyan)' }}>
+{` ___  ___ _____ _   _ ______
+/ __||  _|_   _| | | |  _  \\
+\\__ \\| |_  | | | | | | |_/ /
+|___/|___| |_| |_____| __/
+                       |_|   WIZARD`}
+          </pre>
+          <p className="text-sm" style={{ color: 'var(--cyber-magenta)' }}>
+            &gt; INITIALIZING HOMELAB CONTROL MATRIX...
           </p>
         </div>
 
-        {/* Progress */}
-        <div className="flex items-center justify-center mb-8">
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center mb-6 gap-0">
           {[0, 1, 2].map(i => (
             <div key={i} className="flex items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                i <= step 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
-              }`}>
-                {i + 1}
+              <div
+                className="w-8 h-8 flex items-center justify-center text-xs font-bold"
+                style={{
+                  border: `1px solid ${i <= step ? 'var(--cyber-cyan)' : 'var(--cyber-dim)'}`,
+                  color: i <= step ? 'var(--cyber-bg)' : 'var(--cyber-dim)',
+                  backgroundColor: i <= step ? 'var(--cyber-cyan)' : 'transparent',
+                  boxShadow: i <= step ? '0 0 8px var(--cyber-cyan)' : 'none',
+                }}
+              >
+                {i < step ? '✓' : i + 1}
               </div>
-              {i < 2 && (
-                <div className={`w-16 h-1 ${
-                  i < step ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
-                }`} />
-              )}
+              <div className="text-xs ml-1 mr-3" style={{ color: i <= step ? 'var(--cyber-cyan)' : 'var(--cyber-dim)' }}>
+                {stepLabels[i]}
+              </div>
+              {i < 2 && <div className="w-8 h-px mr-3" style={{ backgroundColor: i < step ? 'var(--cyber-cyan)' : 'var(--cyber-dim)' }} />}
             </div>
           ))}
         </div>
 
-        {/* Step 1: Service Auswahl */}
+        {/* Step 1: Service Selection */}
         {step === 0 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Welche Services möchtest du überwachen?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <div className="text-xs mb-3" style={{ color: 'var(--cyber-magenta)' }}>
+              ╔═[ STEP 1: SELECT SERVICE NODES ]═╗
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {AVAILABLE_SERVICES.map(service => (
                 <div
                   key={service.id}
                   onClick={() => handleServiceToggle(service.id)}
-                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
-                    selectedServices.includes(service.id)
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-blue-300'
-                  }`}
+                  className="p-4 cursor-pointer transition-all"
+                  style={{
+                    border: `1px solid ${selectedServices.includes(service.id) ? 'var(--cyber-cyan)' : 'var(--cyber-dim)'}`,
+                    backgroundColor: selectedServices.includes(service.id) ? 'rgba(0,255,255,0.05)' : 'transparent',
+                    boxShadow: selectedServices.includes(service.id) ? '0 0 8px var(--cyber-cyan)' : 'none',
+                  }}
                 >
-                  <div className="flex items-center space-x-4">
-                    <span className="text-4xl">{service.icon}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{service.icon}</span>
                     <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">
-                        {service.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {service.description}
-                      </p>
+                      <div
+                        className="font-bold text-sm tracking-wider"
+                        style={{ color: selectedServices.includes(service.id) ? 'var(--cyber-cyan)' : 'var(--cyber-silver)' }}
+                      >
+                        {service.name.toUpperCase()}
+                      </div>
+                      <div className="text-xs" style={{ color: 'var(--cyber-dim)' }}>
+                        &gt; {service.description}
+                      </div>
                     </div>
                     {selectedServices.includes(service.id) && (
-                      <span className="text-blue-500 text-2xl">✓</span>
+                      <span style={{ color: 'var(--cyber-green)', textShadow: '0 0 4px var(--cyber-green)' }}>
+                        [✓]
+                      </span>
                     )}
                   </div>
                 </div>
               ))}
             </div>
+            <div className="text-xs mt-2" style={{ color: 'var(--cyber-magenta)' }}>
+              ╚══════════════════════════════════╝
+            </div>
           </div>
         )}
 
-        {/* Step 2: Service Konfiguration */}
+        {/* Step 2: Configuration */}
         {step === 1 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Konfiguriere deine Services
-            </h2>
+          <div className="space-y-4">
+            <div className="text-xs mb-3" style={{ color: 'var(--cyber-magenta)' }}>
+              ╔═[ STEP 2: CONFIGURE NODES ]═╗
+            </div>
             {selectedServices.map(serviceId => {
               const service = AVAILABLE_SERVICES.find(s => s.id === serviceId);
               if (!service) return null;
               
               return (
-                <div key={serviceId} className="p-6 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <span className="text-3xl">{service.icon}</span>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {service.name}
-                    </h3>
+                <div
+                  key={serviceId}
+                  className="p-4"
+                  style={{ border: '1px solid var(--cyber-dim)', backgroundColor: 'rgba(0,0,0,0.3)' }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <span>{service.icon}</span>
+                    <span className="text-sm font-bold" style={{ color: 'var(--cyber-cyan)' }}>
+                      {service.name.toUpperCase()}
+                    </span>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Service URL
+                      <label className="block text-xs mb-1" style={{ color: 'var(--cyber-dim)' }}>
+                        &gt; SERVICE_URL
                       </label>
                       <input
                         type="text"
                         placeholder={service.defaultUrl}
                         defaultValue={service.defaultUrl}
                         onChange={(e) => handleServiceConfig(serviceId, 'url', e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-1.5 text-xs cyber-input"
+                        style={{
+                          backgroundColor: 'var(--cyber-bg)',
+                          border: '1px solid var(--cyber-dim)',
+                          color: 'var(--cyber-cyan)',
+                          fontFamily: "'Share Tech Mono', monospace",
+                        }}
                       />
                     </div>
                     
                     {service.requiresToken && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          API Token
-                          <span className="ml-2 text-xs text-gray-500">({service.tokenHelp})</span>
+                        <label className="block text-xs mb-1" style={{ color: 'var(--cyber-dim)' }}>
+                          &gt; API_TOKEN &nbsp;
+                          <span style={{ color: 'var(--cyber-yellow)' }}>// {service.tokenHelp}</span>
                         </label>
                         <input
                           type="password"
-                          placeholder="Gib dein API Token ein..."
+                          placeholder="[ENTER API TOKEN]"
                           onChange={(e) => handleServiceConfig(serviceId, 'apiToken', e.target.value)}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-1.5 text-xs cyber-input-magenta"
+                          style={{
+                            backgroundColor: 'var(--cyber-bg)',
+                            border: '1px solid var(--cyber-dim)',
+                            color: 'var(--cyber-magenta)',
+                            fontFamily: "'Share Tech Mono', monospace",
+                          }}
                         />
                       </div>
                     )}
@@ -255,61 +295,73 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </div>
               );
             })}
+            <div className="text-xs" style={{ color: 'var(--cyber-magenta)' }}>
+              ╚═════════════════════════════╝
+            </div>
           </div>
         )}
 
-        {/* Step 3: Bestätigung */}
+        {/* Step 3: Confirm */}
         {step === 2 && (
-          <div className="text-center space-y-6">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Alles bereit!
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Du hast {selectedServices.length} Service{selectedServices.length !== 1 ? 's' : ''} konfiguriert:
+          <div className="text-center space-y-4">
+            <pre className="text-xs" style={{ color: 'var(--cyber-green)', textShadow: '0 0 8px var(--cyber-green)' }}>
+{`  ██████╗  ██████╗ 
+ ██╔════╝ ██╔═══██╗
+ ██║  ███╗██║   ██║
+ ██║   ██║██║   ██║
+ ╚██████╔╝╚██████╔╝
+  ╚═════╝  ╚═════╝ `}
+            </pre>
+            <p className="text-sm" style={{ color: 'var(--cyber-cyan)' }}>
+              &gt; {selectedServices.length} NODE{selectedServices.length !== 1 ? 'S' : ''} CONFIGURED &amp; READY
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-2">
               {selectedServices.map(id => {
                 const service = AVAILABLE_SERVICES.find(s => s.id === id);
                 return (
-                  <div key={id} className="flex items-center space-x-2 px-4 py-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <span className="text-2xl">{service?.icon}</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{service?.name}</span>
+                  <div
+                    key={id}
+                    className="flex items-center gap-2 px-3 py-1 text-xs"
+                    style={{ border: '1px solid var(--cyber-green)', color: 'var(--cyber-green)' }}
+                  >
+                    <span>{service?.icon}</span>
+                    <span>{service?.name.toUpperCase()}</span>
                   </div>
                 );
               })}
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Du kannst die Konfiguration später jederzeit in den Einstellungen ändern.
+            <p className="text-xs" style={{ color: 'var(--cyber-dim)' }}>
+              // Config can be modified later via the backend API
             </p>
           </div>
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between mt-6">
           <button
             onClick={() => setStep(Math.max(0, step - 1))}
             disabled={step === 0}
-            className="px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="btn-cyber text-xs disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            Zurück
+            &lt;&lt; BACK
           </button>
           
           {step < 2 ? (
             <button
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+              className="btn-cyber text-xs disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Weiter
+              NEXT &gt;&gt;
             </button>
           ) : (
             <button
               onClick={handleComplete}
               disabled={saving}
-              className="px-8 py-3 rounded-lg font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 transition-all shadow-lg"
+              className="btn-cyber text-xs disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ borderColor: 'var(--cyber-green)', color: 'var(--cyber-green)' }}
             >
-              {saving ? 'Speichere...' : '🚀 Dashboard starten'}
+              {saving ? 'WRITING CONFIG...' : '>> JACK IN <<'}
             </button>
           )}
         </div>
